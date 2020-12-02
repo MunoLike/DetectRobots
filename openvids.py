@@ -20,7 +20,7 @@ def main():
     v = 0
 
     FILTER = 2
-    cap = cv2.VideoCapture(r'./camvids/3.mp4')
+    cap = cv2.VideoCapture(r'./camvids/1.mp4')
 
     cap.set(cv2.CAP_PROP_FPS, 30)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
@@ -74,10 +74,11 @@ def main():
 
         # umeume
         kernel = np.ones((5, 5), np.uint8)
-        hsv_vec = cv2.morphologyEx(hsv, cv2.MORPH_CLOSE, kernel)
+        hsv_vec = cv2.morphologyEx(hsv, cv2.MORPH_OPEN, kernel)
 
         cv2.imshow(FILTERED_WINDOW, limited)
 
+    # TODO:赤だけ抜く。色相'環'は円径だからHは0~30と300~360あたり
         if cv2.waitKey(100) & 0xFF == ord('q'):
             break
 
