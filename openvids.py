@@ -78,7 +78,7 @@ def main():
 
         cv2.imshow(FILTERED_WINDOW, limited)
 
-    # TODO:赤だけ抜く。色相'環'は円径だからHは0~30と300~360あたり
+    # TODO:赤だけ抜く。色相'環'は円だからHは0~30と300~360あたり
         if cv2.waitKey(100) & 0xFF == ord('q'):
             break
 
