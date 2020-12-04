@@ -1,10 +1,13 @@
 import cv2
+from PIL import Image
 import numpy as np
 
 WIDTH = 640
 HEIGHT = 480
+MARGIN = 100
 IMG_WINDOW = 'img'
-RESULT_WINDOW='result'
+RESULT_WINDOW = 'result'
+TRIMMED_WINDOW = 'trimmed'
 
 src_pt = np.zeros((4, 2), dtype=np.float32)
 dst_pt = np.zeros((4, 2), dtype=np.float32)
@@ -14,14 +17,52 @@ editable_img = None
 click_cnt = 0
 
 
-def mouseCallback(e, x, y, flags, _):
+def pil2cv(image):
+    ''' PIL型 -> OpenCV型 '''
+    new_image = np.array(image, dtype=np.uint8)
+    if new_image.ndim == 2:  # モノクロ
+        pass
+    elif new_image.shape[2] == 3:  # カラー
+        new_image = cv2.cvtColor(new_image, cv2.COLOR_RGB2BGR)
+    elif new_image.shape[2] == 4:  # 透過
+        new_image = cv2.cvtColor(new_image, cv2.COLOR_RGBA2BGRA)
+    return new_image
+
+
+def cv2pil(image):
+    ''' OpenCV型 -> PIL型 '''
+    new_image = image.copy()
+    if new_image.ndim == 2:  # モノクロ
+        pass
+    elif new_image.shape[2] == 3:  # カラー
+        new_image = cv2.cvtColor(new_image, cv2.COLOR_BGR2RGB)
+    elif new_image.shape[2] == 4:  # 透過
+        new_image = cv2.cvtColor(new_image, cv2.COLOR_BGRA2RGBA)
+    new_image = Image.fromarray(new_image)
+    return new_image
+
+
+def add_margin(pil_img, top, right, bottom, left, color):
+    width, height = pil_img.size
+    new_width = width + right + left
+    new_height = height + top + bottom
+    result = Image.new(pil_img.mode, (new_width, new_height), color)
+    result.paste(pil_img, (left, top))
+    return result
+
+
+def recordClick(e, x, y, flags, _):
     global src_pt
     global click_cnt
     if e == cv2.EVENT_LBUTTONDBLCLK:
         print(x, y)
         src_pt[click_cnt] = [x, y]
         click_cnt += 1
- 
+
+
+def mdbg(e, x, y, flags, _):
+    if e == cv2.EVENT_LBUTTONDOWN:
+        print(x, y)
 
 
 def main():
@@ -33,32 +74,52 @@ def main():
 
     result = None
 
-
     img = cv2.imread('camvids/pic1.jpg')
     img = cv2.resize(img, (WIDTH, HEIGHT))
+
+    pil_img = cv2pil(img)
+    pil_img = add_margin(pil_img, MARGIN, MARGIN, MARGIN, MARGIN, (255, 255, 255))
+    img = pil2cv(pil_img)
+
     editable_img = img.copy()
     cv2.namedWindow(IMG_WINDOW)
-    cv2.namedWindow(RESULT_WINDOW)
-    cv2.setMouseCallback(IMG_WINDOW, mouseCallback)
+    cv2.namedWindow(RESULT_WINDOW, cv2.WINDOW_NORMAL)
+    cv2.namedWindow(TRIMMED_WINDOW, cv2.WINDOW_NORMAL)
+
+    cv2.setMouseCallback(IMG_WINDOW, recordClick)
+    cv2.setMouseCallback(TRIMMED_WINDOW, mdbg)
 
     while True:
+        for i in range(click_cnt):
+            cv2.circle(editable_img, tuple(src_pt[i]), 5, (0, 255, 0), -1)
+
+        #
         if click_cnt > 3:
             click_cnt = 0
-            dst_pt[0] = [src_pt[0][0], src_pt[3][1]]
-            dst_pt[1] = [src_pt[0][0], src_pt[2][1]]
-            dst_pt[2] = [src_pt[3][0], src_pt[2][1]]
-            dst_pt[3] = src_pt[3]
+
+            (w_orig, w_end) = int(min(src_pt[0][0], src_pt[1][0])), int(max(src_pt[2][0], src_pt[3][0]))
+            (h_orig, h_end) = int(min(src_pt[0][1], src_pt[3][1])), int(max(src_pt[1][1], src_pt[2][1]))
+            trimmed = img[h_orig:h_end, w_orig:w_end]
+            cv2.imshow(TRIMMED_WINDOW, trimmed)
+
+            dst_pt[0] = [w_orig, h_orig]
+            dst_pt[1] = [w_orig, h_end]
+            dst_pt[2] = [w_end, h_end]
+            dst_pt[3] = [w_end, h_orig]
+            # dst_pt[0] = [src_pt[0][0], src_pt[3][1]]
+            # dst_pt[1] = [src_pt[0][0], src_pt[2][1]]
+            # dst_pt[2] = [src_pt[3][0], src_pt[2][1]]
+            # dst_pt[3] = src_pt[3]
 
             h_mat = cv2.getPerspectiveTransform(src_pt, dst_pt)
-            result = cv2.warpPerspective(editable_img, h_mat, (HEIGHT+100,WIDTH+100))
+            result = cv2.warpPerspective(trimmed, h_mat, (HEIGHT+MARGIN*4, WIDTH+MARGIN*4))
+
+            editable_img = img.copy()  # reset Image
             cv2.imshow(RESULT_WINDOW, result)
 
         #
-        for i in range(click_cnt):
-            cv2.circle(img, tuple(src_pt[i]), 10, (0,255,0), -1)
 
-
-        cv2.imshow(IMG_WINDOW, img)
+        cv2.imshow(IMG_WINDOW, editable_img)
         if cv2.waitKey(1) == ord('q'):
             break
 
