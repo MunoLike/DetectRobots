@@ -2,6 +2,7 @@ import cv2
 from PIL import Image
 import numpy as np
 
+# fpsあがるかな？
 WIDTH = 640
 HEIGHT = 480
 MARGIN = 100

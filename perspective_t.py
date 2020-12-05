@@ -108,7 +108,6 @@ def main():
 
             editable_img = img.copy()  # reset Image
             cv2.imshow(RESULT_WINDOW, result)
-
         #
 
         cv2.imshow(IMG_WINDOW, editable_img)
