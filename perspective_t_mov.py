@@ -71,22 +71,31 @@ def main():
     global dst_pt
     global click_cnt
 
+    h_mat = None
     result = None
 
-    img = cv2.imread('camvids/pic1.jpg')
-    img = cv2.resize(img, (WIDTH, HEIGHT))
+    cap = cv2.VideoCapture(r'./camvids/2.mp4')
 
-    pil_img = cv2pil(img)
-    pil_img = add_margin(pil_img, MARGIN, MARGIN, MARGIN, MARGIN, (255, 255, 255))
-    img = pil2cv(pil_img)
 
-    editable_img = img.copy()
     cv2.namedWindow(IMG_WINDOW)
     cv2.namedWindow(RESULT_WINDOW, cv2.WINDOW_NORMAL)
 
     cv2.setMouseCallback(IMG_WINDOW, recordClick)
 
     while True:
+        success, img = cap.read()
+        if not(success):
+            break
+
+        img = cv2.resize(img, (WIDTH, HEIGHT))
+
+        pil_img = cv2pil(img)
+        pil_img = add_margin(pil_img, MARGIN, MARGIN, MARGIN, MARGIN, (255, 255, 255))
+        img = pil2cv(pil_img)
+
+        editable_img = img.copy()
+
+
         for i in range(click_cnt):
             cv2.circle(editable_img, tuple(src_pt[i]), 5, (0, 255, 0), -1)
 
@@ -103,16 +112,16 @@ def main():
             dst_pt[3] = [w_end, h_orig]
 
             h_mat = cv2.getPerspectiveTransform(src_pt, dst_pt)
-
-            result = cv2.warpPerspective(img, h_mat, (WIDTH, WIDTH))
-
             editable_img = img.copy()  # reset Image
+
+        if not(h_mat is None):
+            result = cv2.warpPerspective(img, h_mat, (WIDTH, WIDTH))
             cv2.imshow(RESULT_WINDOW, result)
 
         #
 
         cv2.imshow(IMG_WINDOW, editable_img)
-        if cv2.waitKey(1) == ord('q'):
+        if cv2.waitKey(100) == ord('q'):
             break
 
 
