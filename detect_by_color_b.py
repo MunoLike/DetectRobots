@@ -1,13 +1,15 @@
 import cv2
 import numpy as np
 
+# BGR
+LINE_COLOR = (3, 216, 255)
 HSV_WINDOW = 'hsv'
 FILTERED_WINDOW = 'filtered'
 
 hsv = None
 
-# 赤色のおすすめパラメータはh1=22,h2=186,s=110,v=0
-# 青色
+# 青色のおすすめパラメータはh:127~178,s:41~255,v:91~255
+
 
 def mouseCallback(e, x, y, flags, img):
     if e == cv2.EVENT_LBUTTONDBLCLK:
@@ -57,6 +59,7 @@ def main():
         success, img = cap.read()
         if not(success):
             cap.set(cv2.CAP_PROP_POS_FRAMES, 0)  # ループ再生
+            continue
 
         img = cv2.resize(img, (320, 240))
 
@@ -77,17 +80,13 @@ def main():
         cv2.setMouseCallback(HSV_WINDOW, mouseCallback)
 
         # limit by color
-        hsv_min = np.array([0, s, v])
-        hsv_max = np.array([h, 255, 255])
+        hsv_min = np.array([h, s, v])
+        hsv_max = np.array([h2, 255, 255])
         limited1 = cv2.inRange(hsv, hsv_min, hsv_max)
 
-        hsv_min = np.array([h2, s, v])
-        hsv_max = np.array([255, 255, 255])
-        limited2 = cv2.inRange(hsv, hsv_min, hsv_max)
+        limited = limited1
 
-        limited = limited1+limited2
-
-        # umeume
+        # Rinkaku
         contours, _ = cv2.findContours(limited, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         rects = []
         for contour in contours:
@@ -95,14 +94,18 @@ def main():
             rect = cv2.boundingRect(approx)
             rects.append(np.array(rect))
 
+        # render a rectangle
+        limited = cv2.cvtColor(limited, cv2.COLOR_GRAY2BGR)
         if len(rects) > 0:
-            rect = max(rects, key=(lambda x: x[2]*x[3]))
-            cv2.rectangle(limited, tuple(rect[0:2]), tuple(rect[0:2] + rect[2:4]), (255, 0, 0), 4)
+            # 今は2番目に面積の大きいものを取得しているが、実機が走り回るとどうだろうか
+            # スタート地点と被ったときの条件分岐を考える必要がある
+            rect = sorted(rects, key=lambda e: e[2]*e[3], reverse=True)[1]
+            #rect = max(rects, key=(lambda x: x[2]*x[3]))
+            cv2.rectangle(limited, tuple(rect[0:2]), tuple(rect[0:2] + rect[2:4]), LINE_COLOR, 3)
 
         #
         cv2.imshow(FILTERED_WINDOW, limited)
 
-    # TODO:青だけ抜く。色相'環'は180~250あたり=127.5~177
         if cv2.waitKey(25) & 0xFF == ord('q'):
             break
 
