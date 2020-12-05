@@ -55,7 +55,6 @@ def recordClick(e, x, y, flags, _):
     global src_pt
     global click_cnt
     if e == cv2.EVENT_LBUTTONDBLCLK:
-        print(x, y)
         src_pt[click_cnt] = [x, y]
         click_cnt += 1
 
@@ -87,7 +86,6 @@ def main():
     cv2.namedWindow(TRIMMED_WINDOW, cv2.WINDOW_NORMAL)
 
     cv2.setMouseCallback(IMG_WINDOW, recordClick)
-    cv2.setMouseCallback(TRIMMED_WINDOW, mdbg)
 
     while True:
         for i in range(click_cnt):
@@ -99,20 +97,25 @@ def main():
 
             (w_orig, w_end) = int(min(src_pt[0][0], src_pt[1][0])), int(max(src_pt[2][0], src_pt[3][0]))
             (h_orig, h_end) = int(min(src_pt[0][1], src_pt[3][1])), int(max(src_pt[1][1], src_pt[2][1]))
-            trimmed = img[h_orig:h_end, w_orig:w_end]
-            cv2.imshow(TRIMMED_WINDOW, trimmed)
 
             dst_pt[0] = [w_orig, h_orig]
             dst_pt[1] = [w_orig, h_end]
             dst_pt[2] = [w_end, h_end]
             dst_pt[3] = [w_end, h_orig]
-            # dst_pt[0] = [src_pt[0][0], src_pt[3][1]]
-            # dst_pt[1] = [src_pt[0][0], src_pt[2][1]]
-            # dst_pt[2] = [src_pt[3][0], src_pt[2][1]]
-            # dst_pt[3] = src_pt[3]
 
             h_mat = cv2.getPerspectiveTransform(src_pt, dst_pt)
-            result = cv2.warpPerspective(trimmed, h_mat, (HEIGHT+MARGIN*4, WIDTH+MARGIN*4))
+
+            # transformed_pointの値を見て自動で拡張するようにした方がいいかも
+            result = cv2.warpPerspective(img, h_mat, (WIDTH+50, HEIGHT+100))
+
+            # src, 挿入前点, 挿入する値, 軸。 転置していることに注意
+            transformed_point = cv2.perspectiveTransform(np.array([dst_pt]),h_mat)
+            transformed_point = transformed_point[0]
+            (w_orig, w_end) = int(min(transformed_point[0][0], transformed_point[1][0])), int(max(transformed_point[2][0], transformed_point[3][0]))
+            (h_orig, h_end) = int(min(transformed_point[0][1], transformed_point[3][1])), int(max(transformed_point[1][1], transformed_point[2][1]))
+
+            trimmed = result[h_orig:h_end, w_orig:w_end]
+            cv2.imshow(TRIMMED_WINDOW, trimmed)
 
             editable_img = img.copy()  # reset Image
             cv2.imshow(RESULT_WINDOW, result)
