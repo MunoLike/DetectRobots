@@ -95,8 +95,8 @@ def main():
         if click_cnt > 3:
             click_cnt = 0
 
-            (w_orig, w_end) = int(min(src_pt[0][0], src_pt[1][0])), int(max(src_pt[2][0], src_pt[3][0]))
-            (h_orig, h_end) = int(min(src_pt[0][1], src_pt[3][1])), int(max(src_pt[1][1], src_pt[2][1]))
+            (w_orig, w_end) = (0,WIDTH)
+            (h_orig, h_end) = (0,WIDTH)
 
             dst_pt[0] = [w_orig, h_orig]
             dst_pt[1] = [w_orig, h_end]
@@ -105,17 +105,7 @@ def main():
 
             h_mat = cv2.getPerspectiveTransform(src_pt, dst_pt)
 
-            # transformed_pointの値を見て自動で拡張するようにした方がいいかも
-            result = cv2.warpPerspective(img, h_mat, (WIDTH+50, HEIGHT+100))
-
-            # src, 挿入前点, 挿入する値, 軸。 転置していることに注意
-            transformed_point = cv2.perspectiveTransform(np.array([dst_pt]),h_mat)
-            transformed_point = transformed_point[0]
-            (w_orig, w_end) = int(min(transformed_point[0][0], transformed_point[1][0])), int(max(transformed_point[2][0], transformed_point[3][0]))
-            (h_orig, h_end) = int(min(transformed_point[0][1], transformed_point[3][1])), int(max(transformed_point[1][1], transformed_point[2][1]))
-
-            trimmed = result[h_orig:h_end, w_orig:w_end]
-            cv2.imshow(TRIMMED_WINDOW, trimmed)
+            result = cv2.warpPerspective(img, h_mat, (WIDTH, WIDTH))
 
             editable_img = img.copy()  # reset Image
             cv2.imshow(RESULT_WINDOW, result)
