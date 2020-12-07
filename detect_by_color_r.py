@@ -11,6 +11,7 @@ hsv = None
 # 赤色のおすすめパラメータはh1=0~19,h2=228~255,s=103~255,v=125~255
 # profile_2:h1=0~19, h2=222~255, s=88~255, v=166~255
 
+
 def mouseCallback(e, x, y, flags, img):
     if e == cv2.EVENT_LBUTTONDBLCLK:
         print(hsv[y, x])
@@ -27,6 +28,7 @@ def main():
     s_min = 0
     v_max = 0
     v_min = 0
+    interval = 0
 
     FILTER = 2
     cap = cv2.VideoCapture(r'./camvids/4.mp4')
@@ -69,6 +71,12 @@ def main():
         nonlocal v_min
         v_min = v_new
 
+    def interval_change(interval_change):
+        nonlocal interval
+        if interval_change == 0:
+            interval_change = 1
+        interval = interval_change
+
     cv2.namedWindow(FILTERED_WINDOW)
     cv2.createTrackbar('H1_min', FILTERED_WINDOW, 0, 255, hmin_change)
     cv2.createTrackbar('H1_max', FILTERED_WINDOW, 0, 255, hmax_change)
@@ -78,6 +86,7 @@ def main():
     cv2.createTrackbar('S_max', FILTERED_WINDOW, 0, 255, smax_change)
     cv2.createTrackbar('V_min', FILTERED_WINDOW, 0, 255, vmin_change)
     cv2.createTrackbar('V_max', FILTERED_WINDOW, 0, 255, vmax_change)
+    cv2.createTrackbar('interval', FILTERED_WINDOW, 25, 100, interval_change)
 
     while True:
         success, img = cap.read()
@@ -128,13 +137,12 @@ def main():
             # 今は2番目に面積の大きいものを取得しているが、実機が走り回るとどうだろうか
             # スタート地点と被ったときの条件分岐を考える必要がある
             rect = sorted(rects, key=lambda e: e[2]*e[3], reverse=True)[1]
-            #rect = max(rects, key=(lambda x: x[2]*x[3]))
             cv2.rectangle(limited, tuple(rect[0:2]), tuple(rect[0:2] + rect[2:4]), LINE_COLOR, 3)
 
         #
         cv2.imshow(FILTERED_WINDOW, limited)
 
-        if cv2.waitKey(25) & 0xFF == ord('q'):
+        if cv2.waitKey(interval) & 0xFF == ord('q'):
             break
 
 

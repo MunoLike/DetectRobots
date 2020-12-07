@@ -9,6 +9,7 @@ FILTERED_WINDOW = 'filtered'
 hsv = None
 
 # 青色のおすすめパラメータはh:127~178,s:41~255,v:91~255
+# profile_2: h:141~185, s:75~255, v:91~255
 
 
 def mouseCallback(e, x, y, flags, img):
@@ -25,6 +26,7 @@ def main():
     s_min = 0
     v_max = 0
     v_min = 0
+    interval = 25
 
     FILTER = 2
     cap = cv2.VideoCapture(r'./camvids/3.mp4')
@@ -59,6 +61,12 @@ def main():
         nonlocal v_min
         v_min = v_new
 
+    def interval_change(interval_change):
+        nonlocal interval
+        if interval_change == 0:
+            interval_change = 1
+        interval = interval_change
+
     cv2.namedWindow(FILTERED_WINDOW)
     cv2.createTrackbar('H1', FILTERED_WINDOW, 0, 255, h_change)
     cv2.createTrackbar('H2', FILTERED_WINDOW, 0, 255, h2_change)
@@ -66,6 +74,7 @@ def main():
     cv2.createTrackbar('S_max', FILTERED_WINDOW, 0, 255, smax_change)
     cv2.createTrackbar('V_min', FILTERED_WINDOW, 0, 255, vmin_change)
     cv2.createTrackbar('V_max', FILTERED_WINDOW, 0, 255, vmax_change)
+    cv2.createTrackbar('interval', FILTERED_WINDOW, 25, 100, interval_change)
 
     while True:
         success, img = cap.read()
@@ -112,13 +121,12 @@ def main():
             # 今は2番目に面積の大きいものを取得しているが、実機が走り回るとどうだろうか
             # スタート地点と被ったときの条件分岐を考える必要がある
             rect = sorted(rects, key=lambda e: e[2]*e[3], reverse=True)[1]
-            #rect = max(rects, key=(lambda x: x[2]*x[3]))
             cv2.rectangle(limited, tuple(rect[0:2]), tuple(rect[0:2] + rect[2:4]), LINE_COLOR, 3)
 
         #
         cv2.imshow(FILTERED_WINDOW, limited)
 
-        if cv2.waitKey(25) & 0xFF == ord('q'):
+        if cv2.waitKey(interval) & 0xFF == ord('q'):
             break
 
 
