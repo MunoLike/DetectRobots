@@ -21,11 +21,13 @@ def main():
 
     h = 0
     h2 = 0
-    s = 0
-    v = 0
+    s_max = 0
+    s_min = 0
+    v_max = 0
+    v_min = 0
 
     FILTER = 2
-    cap = cv2.VideoCapture(r'./camvids/2.mp4')
+    cap = cv2.VideoCapture(r'./camvids/3.mp4')
 
     cap.set(cv2.CAP_PROP_FPS, 30)
 
@@ -41,19 +43,29 @@ def main():
         nonlocal h2
         h2 = h2_new
 
-    def s_change(s_new):
-        nonlocal s
-        s = s_new
+    def smax_change(s_new):
+        nonlocal s_max
+        s_max = s_new
 
-    def v_change(v_new):
-        nonlocal v
-        v = v_new
+    def smin_change(s_new):
+        nonlocal s_min
+        s_min = s_new
+
+    def vmax_change(v_new):
+        nonlocal v_max
+        v_max = v_new
+
+    def vmin_change(v_new):
+        nonlocal v_min
+        v_min = v_new
 
     cv2.namedWindow(FILTERED_WINDOW)
     cv2.createTrackbar('H1', FILTERED_WINDOW, 0, 255, h_change)
     cv2.createTrackbar('H2', FILTERED_WINDOW, 0, 255, h2_change)
-    cv2.createTrackbar('S', FILTERED_WINDOW, 0, 255, s_change)
-    cv2.createTrackbar('V', FILTERED_WINDOW, 0, 255, v_change)
+    cv2.createTrackbar('S_min', FILTERED_WINDOW, 0, 255, smin_change)
+    cv2.createTrackbar('S_max', FILTERED_WINDOW, 0, 255, smax_change)
+    cv2.createTrackbar('V_min', FILTERED_WINDOW, 0, 255, vmin_change)
+    cv2.createTrackbar('V_max', FILTERED_WINDOW, 0, 255, vmax_change)
 
     while True:
         success, img = cap.read()
@@ -80,8 +92,8 @@ def main():
         cv2.setMouseCallback(HSV_WINDOW, mouseCallback)
 
         # limit by color
-        hsv_min = np.array([h, s, v])
-        hsv_max = np.array([h2, 255, 255])
+        hsv_min = np.array([h, s_min, v_min])
+        hsv_max = np.array([h2, s_max, v_max])
         limited1 = cv2.inRange(hsv, hsv_min, hsv_max)
 
         limited = limited1
@@ -96,7 +108,7 @@ def main():
 
         # render a rectangle
         limited = cv2.cvtColor(limited, cv2.COLOR_GRAY2BGR)
-        if len(rects) > 0:
+        if len(rects) > 1:
             # 今は2番目に面積の大きいものを取得しているが、実機が走り回るとどうだろうか
             # スタート地点と被ったときの条件分岐を考える必要がある
             rect = sorted(rects, key=lambda e: e[2]*e[3], reverse=True)[1]

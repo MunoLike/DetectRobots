@@ -9,7 +9,7 @@ FILTERED_WINDOW = 'filtered'
 hsv = None
 
 # 赤色のおすすめパラメータはh1=0~19,h2=228~255,s=103~255,v=125~255
-
+# profile_2:h1=0~19, h2=222~255, s=88~255, v=166~255
 
 def mouseCallback(e, x, y, flags, img):
     if e == cv2.EVENT_LBUTTONDBLCLK:
@@ -23,11 +23,13 @@ def main():
     h_max = 0
     h2_min = 0
     h2_max = 0
-    s = 0
-    v = 0
+    s_max = 0
+    s_min = 0
+    v_max = 0
+    v_min = 0
 
     FILTER = 2
-    cap = cv2.VideoCapture(r'./camvids/2.mp4')
+    cap = cv2.VideoCapture(r'./camvids/4.mp4')
 
     cap.set(cv2.CAP_PROP_FPS, 30)
 
@@ -51,21 +53,31 @@ def main():
         nonlocal h2_max
         h2_max = h2_new
 
-    def s_change(s_new):
-        nonlocal s
-        s = s_new
+    def smax_change(s_new):
+        nonlocal s_max
+        s_max = s_new
 
-    def v_change(v_new):
-        nonlocal v
-        v = v_new
+    def smin_change(s_new):
+        nonlocal s_min
+        s_min = s_new
+
+    def vmax_change(v_new):
+        nonlocal v_max
+        v_max = v_new
+
+    def vmin_change(v_new):
+        nonlocal v_min
+        v_min = v_new
 
     cv2.namedWindow(FILTERED_WINDOW)
     cv2.createTrackbar('H1_min', FILTERED_WINDOW, 0, 255, hmin_change)
     cv2.createTrackbar('H1_max', FILTERED_WINDOW, 0, 255, hmax_change)
     cv2.createTrackbar('H2_min', FILTERED_WINDOW, 0, 255, h2min_change)
     cv2.createTrackbar('H2_max', FILTERED_WINDOW, 0, 255, h2max_change)
-    cv2.createTrackbar('S', FILTERED_WINDOW, 0, 255, s_change)
-    cv2.createTrackbar('V', FILTERED_WINDOW, 0, 255, v_change)
+    cv2.createTrackbar('S_min', FILTERED_WINDOW, 0, 255, smin_change)
+    cv2.createTrackbar('S_max', FILTERED_WINDOW, 0, 255, smax_change)
+    cv2.createTrackbar('V_min', FILTERED_WINDOW, 0, 255, vmin_change)
+    cv2.createTrackbar('V_max', FILTERED_WINDOW, 0, 255, vmax_change)
 
     while True:
         success, img = cap.read()
@@ -92,12 +104,12 @@ def main():
         cv2.setMouseCallback(HSV_WINDOW, mouseCallback)
 
         # limit by color
-        hsv_min = np.array([h_min, s, v])
-        hsv_max = np.array([h_max, 255, 255])
+        hsv_min = np.array([h_min, s_min, v_min])
+        hsv_max = np.array([h_max, s_max, v_max])
         limited1 = cv2.inRange(hsv, hsv_min, hsv_max)
 
-        hsv_min = np.array([h2_min, s, v])
-        hsv_max = np.array([h2_max, 255, 255])
+        hsv_min = np.array([h2_min, s_min, v_min])
+        hsv_max = np.array([h2_max, s_max, v_max])
         limited2 = cv2.inRange(hsv, hsv_min, hsv_max)
 
         limited = limited1+limited2
@@ -112,7 +124,7 @@ def main():
 
         # render a rectangle
         limited = cv2.cvtColor(limited, cv2.COLOR_GRAY2BGR)
-        if len(rects) > 0:
+        if len(rects) > 1:
             # 今は2番目に面積の大きいものを取得しているが、実機が走り回るとどうだろうか
             # スタート地点と被ったときの条件分岐を考える必要がある
             rect = sorted(rects, key=lambda e: e[2]*e[3], reverse=True)[1]
