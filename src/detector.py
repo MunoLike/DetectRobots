@@ -10,6 +10,7 @@ RED_WINDOW = 'red'
 BLUE_WINDOW = 'blue'
 
 LINE_COLOR = (3, 216, 255)
+GRID_COLOR = (146, 182, 131)
 
 position_red = [0.0, 0.0]
 position_blue = [0.0, 0.0]
@@ -20,7 +21,7 @@ def lost_red():
 
 
 def lost_blue():
-    return ((0, 0), 0)
+    return ((5, 5), 0)
 
 
 def detect_red(hsv_f):
@@ -130,8 +131,8 @@ def detect(frame, frameSize):
     center_red[1] = red_p[0][1]
 
     # opencv座標はyが反転しているため
-    center_blue = [frameSize-center_blue[0], center_blue[1]]
-    center_red = [frameSize-center_red[0], center_red[1]]
+    center_blue = [center_blue[0], frameSize-center_blue[1]]
+    center_red = [center_red[0], frameSize-center_red[1]]
 
     # 6 means how many there are blocks in the field.
     block_unitSize = frameSize / 6
@@ -140,6 +141,17 @@ def detect(frame, frameSize):
     normalized_redp = [center_red[0]/block_unitSize, center_red[1]/block_unitSize]
 
     if DEBUG_POS:
-        print(normalized_redp, normalized_bluep)
+        block_height = int(frameSize/6)
+        block_width = int(frameSize/6)
+
+        for i in range(1, 6):
+            frame = cv2.line(frame, (i*block_width, 0), (i*block_width, frameSize), GRID_COLOR, 3)
+            frame = cv2.line(frame, (0, i*block_height), (frameSize, i*block_height), GRID_COLOR, 3)
+
+        ###
+        tmp_r = [int(f) for f in normalized_redp]
+        tmp_b = [int(f) for f in normalized_bluep]
+        print(tmp_r, tmp_b)
+        ###
 
     return (normalized_redp, normalized_bluep)

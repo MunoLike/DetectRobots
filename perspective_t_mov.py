@@ -75,8 +75,8 @@ def main():
     h_mat = None
     result = None
 
-    cap = cv2.VideoCapture(r'./camvids/2.mp4')
-    # cap = cv2.VideoCapture(0)
+    #cap = cv2.VideoCapture(r'./camvids/2.mp4')
+    cap = cv2.VideoCapture(0)
 
     cv2.namedWindow(IMG_WINDOW)
     cv2.namedWindow(RESULT_WINDOW, cv2.WINDOW_NORMAL)

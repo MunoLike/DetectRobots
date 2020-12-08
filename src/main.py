@@ -6,7 +6,7 @@ import detector as dt
 import setting_window as sw
 
 # set value 0 for using camera
-cap = cv2.VideoCapture(r'./camvids/1.mp4')
+cap = cv2.VideoCapture(r'./camvids/2.mp4')
 
 # frame size
 (WIDTH, HEIGHT) = (640, 480)

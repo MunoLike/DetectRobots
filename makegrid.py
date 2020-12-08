@@ -7,7 +7,7 @@ LINE_COLOR = (146, 182, 131)
 
 
 def main():
-    img = cv2.imread('camvids/transformed.jpg')
+    img = cv2.imread('camvids/transformed.png')
     HEIGHT, WIDTH = img.shape[:2]
 
     cv2.namedWindow(GRIDDED_WINDOW)
