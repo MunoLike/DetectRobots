@@ -4,8 +4,8 @@ import numpy as np
 
 # 光の乱れに弱い
 
-DEBUG_HSV = False
-DEBUG_POS = True
+DEBUG_HSV = True
+DEBUG_POS = False
 RED_WINDOW = 'red'
 BLUE_WINDOW = 'blue'
 
@@ -57,10 +57,15 @@ def detect_red(hsv_f):
     if len(circles) > 1:
         circ = sorted(circles, key=lambda e: e[1] ** 2 * math.pi, reverse=True)[1]
 
+        s = circ[1] ** 2 * math.pi
+        if 1000 < s and s < 2000:
+            return lost_red()
+
         if DEBUG_HSV:
             bgr = cv2.cvtColor(limited, cv2.COLOR_GRAY2BGR)
             cv2.circle(bgr, (int(circ[0][0]), int(circ[0][1])), int(circ[1]), LINE_COLOR, 2)
             cv2.circle(bgr, (int(circ[0][0]), int(circ[0][1])), 3, LINE_COLOR, 3)
+            print('red: ', circ[1]**2*math.pi)
             cv2.imshow(RED_WINDOW, bgr)
 
     else:
@@ -94,10 +99,15 @@ def detect_blue(hsv_f):
     if len(circles) > 1:
         circ = sorted(circles, key=lambda e: e[1] ** 2 * math.pi, reverse=True)[1]
 
+        s = circ[1] ** 2 * math.pi
+        if 1000 < s and s < 2000:
+            return lost_red()
+
         if DEBUG_HSV:
             bgr = cv2.cvtColor(limited, cv2.COLOR_GRAY2BGR)
             cv2.circle(bgr, (int(circ[0][0]), int(circ[0][1])), int(circ[1]), LINE_COLOR, 2)
             cv2.circle(bgr, (int(circ[0][0]), int(circ[0][1])), 3, LINE_COLOR, 3)
+            print('blue: ', circ[1]**2*math.pi)
             cv2.imshow(BLUE_WINDOW, bgr)
 
     else:
@@ -116,6 +126,7 @@ def detect(frame, frameSize):
     hsv_f = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV_FULL)
 
     # opencv coordinates
+    # error handling are low
     """((x,y),r)"""
     blue_p = detect_blue(hsv_f)
     red_p = detect_red(hsv_f)
