@@ -121,7 +121,8 @@ def main():
             # 今は2番目に面積の大きいものを取得しているが、実機が走り回るとどうだろうか
             # スタート地点と被ったときの条件分岐を考える必要がある
             rect = sorted(rects, key=lambda e: e[2]*e[3], reverse=True)[1]
-            cv2.rectangle(limited, tuple(rect[0:2]), tuple(rect[0:2] + rect[2:4]), LINE_COLOR, 3)
+            cv2.rectangle(limited, tuple(rect[0:2]), tuple(rect[0:2] + rect[2:4]), LINE_COLOR, 1)
+            cv2.circle(limited, tuple(rect[0:2]+rect[2:4]//2), 3, LINE_COLOR, 3)
 
         #
         cv2.imshow(FILTERED_WINDOW, limited)

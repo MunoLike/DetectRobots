@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 
+# 光の乱れに弱い
+
 
 def detect_red(hsv_f):
     h_min = 0
@@ -35,9 +37,9 @@ def detect_red(hsv_f):
     if len(rects) > 1:
         rect = sorted(rects, key=lambda e: e[2]*e[3], reverse=True)[1]
     else:
-        return [0, 0]
+        return [0, 0, 0, 0]
 
-    return rect[0:2]
+    return rect
 
 
 def detect_blue(hsv_f):
@@ -65,9 +67,9 @@ def detect_blue(hsv_f):
     if len(rects) > 1:
         rect = sorted(rects, key=lambda e: e[2]*e[3], reverse=True)[1]
     else:
-        return [0, 0]
+        return [0, 0, 0, 0]
 
-    return rect[0:2]
+    return rect
 
 
 # return position array [red, blue] = [[x,y],[x,y]](all float)
@@ -77,17 +79,28 @@ def detect(frame, frameSize):
     hsv_f = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV_FULL)
 
     # opencv coordinates
+    """[x,y,sizex,sizey]"""
     blue_p = detect_blue(hsv_f)
     red_p = detect_red(hsv_f)
 
+    center_red = [0, 0]
+    center_blue = [0, 0]
+
     # coordinate conversion
-    blue_p = [frameSize-blue_p[0], blue_p[1]]
-    red_p = [frameSize-red_p[0], red_p[1]]
+    center_blue[0] = blue_p[0] + blue_p[2]/2
+    center_blue[1] = blue_p[1] + blue_p[3]/2
+
+    center_red[0] = red_p[0] + red_p[2]/2  # calc center
+    center_red[1] = red_p[1] + red_p[3]/2
+
+    # opencv座標はyが反転しているため
+    center_blue = [frameSize-center_blue[0], center_blue[1]]
+    center_red = [frameSize-center_red[0], center_red[1]]
 
     # 6 means how many there are blocks in the field.
     block_unitSize = frameSize / 6
 
-    blue_p = [blue_p[0]/block_unitSize, blue_p[1]/block_unitSize]
-    red_p = [red_p[0]/block_unitSize, red_p[1]/block_unitSize]
+    normalized_bluep = [center_blue[0]/block_unitSize, center_blue[1]/block_unitSize]
+    normalized_redp = [center_red[0]/block_unitSize, center_red[1]/block_unitSize]
 
-    return [red_p, blue_p]
+    return (normalized_redp, normalized_bluep)
