@@ -26,7 +26,7 @@ def debughsv(limited, circ, window_name):
         if not(circ is None):
             cv2.circle(bgr, (int(circ[0][0]), int(circ[0][1])), int(circ[1]), LINE_COLOR, 2)
             cv2.circle(bgr, (int(circ[0][0]), int(circ[0][1])), 3, LINE_COLOR, 3)
-        print(f'{window_name}: ', circ[1]**2*math.pi)
+            print(f'{window_name}: ', circ[1]**2*math.pi)
         cv2.imshow(window_name, bgr)
 
 
