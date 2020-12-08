@@ -1,6 +1,9 @@
 import cv2
 import math
 import numpy as np
+import math
+
+import setting_window as sw
 
 # 光の乱れに弱い
 
@@ -12,39 +15,26 @@ BLUE_WINDOW = 'blue'
 LINE_COLOR = (3, 216, 255)
 GRID_COLOR = (146, 182, 131)
 
+# initial pos
 position_red = [0.0, 0.0]
-position_blue = [0.0, 0.0]
+position_blue = [5.0, 5.0]
 
 
-def lost_red():
-    return ((0, 0), 0)
+def debughsv(limited, circ, window_name):
+    if DEBUG_HSV:
+        bgr = cv2.cvtColor(limited, cv2.COLOR_GRAY2BGR)
+        if not(circ is None):
+            cv2.circle(bgr, (int(circ[0][0]), int(circ[0][1])), int(circ[1]), LINE_COLOR, 2)
+            cv2.circle(bgr, (int(circ[0][0]), int(circ[0][1])), 3, LINE_COLOR, 3)
+        print(f'{window_name}: ', circ[1]**2*math.pi)
+        cv2.imshow(window_name, bgr)
 
 
-def lost_blue():
-    return ((5, 5), 0)
+def getLength(now, before):
+    return math.sqrt((now[0]-before[0])**2+(now[1]-before[1])**2)
 
 
-def detect_red(hsv_f):
-    h_min = 0
-    h_max = 9
-    h2_min = 0
-    h2_max = 0
-    s_min = 58
-    s_max = 255
-    v_min = 98
-    v_max = 255
-
-    # limit by color
-    hsv_min = np.array([h_min, s_min, v_min])
-    hsv_max = np.array([h_max, s_max, v_max])
-    limited1 = cv2.inRange(hsv_f, hsv_min, hsv_max)
-
-    hsv_min = np.array([h2_min, s_min, v_min])
-    hsv_max = np.array([h2_max, s_max, v_max])
-    limited2 = cv2.inRange(hsv_f, hsv_min, hsv_max)
-
-    limited = limited1+limited2
-
+def getCircle(limited):
     # Rinkaku
     contours, _ = cv2.findContours(limited, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     circles = []
@@ -54,65 +44,56 @@ def detect_red(hsv_f):
         circ = cv2.minEnclosingCircle(approx)
         circles.append(np.array(circ))
 
-    if len(circles) > 1:
-        circ = sorted(circles, key=lambda e: e[1] ** 2 * math.pi, reverse=True)[1]
+    circ = max(circles, key=lambda e: e[1] ** 2 * math.pi, default=None)
+    return circ
 
-        s = circ[1] ** 2 * math.pi
-        if 1000 < s and s < 2000:
-            return lost_red()
 
-        if DEBUG_HSV:
-            bgr = cv2.cvtColor(limited, cv2.COLOR_GRAY2BGR)
-            cv2.circle(bgr, (int(circ[0][0]), int(circ[0][1])), int(circ[1]), LINE_COLOR, 2)
-            cv2.circle(bgr, (int(circ[0][0]), int(circ[0][1])), 3, LINE_COLOR, 3)
-            print('red: ', circ[1]**2*math.pi)
-            cv2.imshow(RED_WINDOW, bgr)
+def detect_red(hsv_f):
+    # limit by color
+    hsv_min = np.array([sw.redh1_min, sw.reds_min, sw.redv_min])
+    hsv_max = np.array([sw.redh1_max, sw.reds_max, sw.redv_max])
+    limited1 = cv2.inRange(hsv_f, hsv_min, hsv_max)
 
-    else:
-        return lost_red()
+    hsv_min = np.array([sw.redh2_min, sw.reds_min, sw.redv_min])
+    hsv_max = np.array([sw.redh2_max, sw.reds_max, sw.redv_max])
+    limited2 = cv2.inRange(hsv_f, hsv_min, hsv_max)
+
+    limited = limited1+limited2
+
+    # circlesが空＝円が見つからないとcircにはNoneが入る
+    circ = getCircle(limited)
+
+    debughsv(limited, circ, RED_WINDOW)
+
+    if (circ is None):
+        return None
+
+    # 円の大きさチェック
+    s = circ[1] ** 2 * math.pi
+    if not(1000 < s and s < 2000):
+        return None
 
     return circ
 
 
 def detect_blue(hsv_f):
-    h_min = 114
-    h_max = 200
-    s_min = 70
-    s_max = 255
-    v_min = 91
-    v_max = 255
-
     # limit by color
-    hsv_min = np.array([h_min, s_min, v_min])
-    hsv_max = np.array([h_max, s_max, v_max])
+    hsv_min = np.array([sw.blueh_min, sw.blues_min, sw.bluev_min])
+    hsv_max = np.array([sw.blueh_max, sw.blues_max, sw.bluev_max])
     limited = cv2.inRange(hsv_f, hsv_min, hsv_max)
 
-    # Rinkaku
-    contours, _ = cv2.findContours(limited, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    circles = []
-    circ = None
-    for contour in contours:
-        approx = cv2.convexHull(contour)
-        circ = cv2.minEnclosingCircle(approx)
-        circles.append(np.array(circ))
+    # circlesが空＝円が見つからないとcircにはNoneが入る
+    circ = getCircle(limited)
 
-    if len(circles) > 1:
-        circ = sorted(circles, key=lambda e: e[1] ** 2 * math.pi, reverse=True)[1]
+    debughsv(limited, circ, BLUE_WINDOW)
 
-        s = circ[1] ** 2 * math.pi
-        if 1000 < s and s < 2000:
-            return lost_red()
+    if (circ is None):
+        return None
 
-        if DEBUG_HSV:
-            bgr = cv2.cvtColor(limited, cv2.COLOR_GRAY2BGR)
-            cv2.circle(bgr, (int(circ[0][0]), int(circ[0][1])), int(circ[1]), LINE_COLOR, 2)
-            cv2.circle(bgr, (int(circ[0][0]), int(circ[0][1])), 3, LINE_COLOR, 3)
-            print('blue: ', circ[1]**2*math.pi)
-            cv2.imshow(BLUE_WINDOW, bgr)
-
-    else:
-        # 見失った
-        return lost_blue()
+    # 円の大きさチェック
+    s = circ[1] ** 2 * math.pi
+    if not(1000 < s and s < 2000):
+        return None
 
     return circ
 
@@ -130,6 +111,12 @@ def detect(frame, frameSize):
     """((x,y),r)"""
     blue_p = detect_blue(hsv_f)
     red_p = detect_red(hsv_f)
+
+    # Error Handling 1
+    if (blue_p is None):
+        return position_blue
+    if red_p is None:
+        return position_red
 
     center_red = [0, 0]
     center_blue = [0, 0]
@@ -150,6 +137,15 @@ def detect(frame, frameSize):
 
     normalized_bluep = [center_blue[0]/block_unitSize, center_blue[1]/block_unitSize]
     normalized_redp = [center_red[0]/block_unitSize, center_red[1]/block_unitSize]
+
+    # Error Handling 2
+    if 1.5 < getLength(normalized_bluep, position_blue):
+        normalized_bluep = position_blue
+    if 1.5 < getLength(normalized_redp, position_red):
+        normalized_redp = position_red
+
+    position_blue = normalized_bluep  # preserve
+    position_red = normalized_redp
 
     if DEBUG_POS:
         block_height = int(frameSize/6)

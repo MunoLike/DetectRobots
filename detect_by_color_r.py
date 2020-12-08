@@ -11,7 +11,7 @@ hsv = None
 
 # 赤色のおすすめパラメータはh1=0~19,h2=228~255,s=103~255,v=125~255
 # profile_2:h1=0~19, h2=222~255, s=88~255, v=166~255
-
+# profile_3:h1=0~4, h2=232~255, s=120~200, v=102~197
 
 def mouseCallback(e, x, y, flags, img):
     if e == cv2.EVENT_LBUTTONDBLCLK:
@@ -32,7 +32,7 @@ def main():
     interval = 25
 
     FILTER = 2
-    cap = cv2.VideoCapture(r'./camvids/1.mp4')
+    cap = cv2.VideoCapture(r'./camvids/4.mp4')
 
     cap.set(cv2.CAP_PROP_FPS, 30)
 
@@ -139,7 +139,7 @@ def main():
         if len(rects) > 1:
             # 今は2番目に面積の大きいものを取得しているが、実機が走り回るとどうだろうか
             # スタート地点と被ったときの条件分岐を考える必要がある
-            rect = sorted(rects, key=lambda e: e[2]*e[3], reverse=True)[1]
+            rect = sorted(rects, key=lambda e: e[2]*e[3], reverse=True)[0]
             cv2.rectangle(limited, tuple(rect[0:2]), tuple(rect[0:2] + rect[2:4]), LINE_COLOR, 3)
 
         #

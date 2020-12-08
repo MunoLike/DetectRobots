@@ -9,7 +9,7 @@ FILTERED_WINDOW = 'filtered'
 hsv = None
 
 # profile_2: h:141~185, s:75~255, v:91~255
-#
+# profile_3: h=88~186, s=53~145, v=106~183
 
 
 def mouseCallback(e, x, y, flags, img):
@@ -29,7 +29,7 @@ def main():
     interval = 25
 
     FILTER = 2
-    cap = cv2.VideoCapture(r'./camvids/5.mp4')
+    cap = cv2.VideoCapture(r'./camvids/3.mp4')
 
     cap.set(cv2.CAP_PROP_FPS, 30)
 
@@ -120,7 +120,7 @@ def main():
         if len(rects) > 1:
             # 今は2番目に面積の大きいものを取得しているが、実機が走り回るとどうだろうか
             # スタート地点と被ったときの条件分岐を考える必要がある
-            rect = sorted(rects, key=lambda e: e[2]*e[3], reverse=True)[1]
+            rect = sorted(rects, key=lambda e: e[2]*e[3], reverse=True)[0]
             cv2.rectangle(limited, tuple(rect[0:2]), tuple(rect[0:2] + rect[2:4]), LINE_COLOR, 1)
             cv2.circle(limited, tuple(rect[0:2]+rect[2:4]//2), 3, LINE_COLOR, 3)
 

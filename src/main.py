@@ -6,7 +6,7 @@ import detector as dt
 import setting_window as sw
 
 # set value 0 for using camera
-cap = cv2.VideoCapture(r'./camvids/1.mp4')
+cap = cv2.VideoCapture(r'./camvids/4.mp4')
 
 # frame size
 (WIDTH, HEIGHT) = (640, 480)
@@ -27,14 +27,14 @@ def main():
         if not(success):
             break
 
-        p_frame = pt.event_loop(frame, HEIGHT, WIDTH)
-        if p_frame is None:
+        frame = pt.event_loop(frame, HEIGHT, WIDTH)
+        if frame is None:
             continue
 
-        filtered_frame = cv2.bilateralFilter(p_frame, 10, 100, 100)
-        coords = dt.detect(filtered_frame, WIDTH)
+        frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
-        cv2.imshow(RESULT_WINDOW, filtered_frame)
+        frame = cv2.bilateralFilter(frame, 10, 100, 100)
+        coords = dt.detect(frame, WIDTH)
 
 
 if __name__ == "__main__":
