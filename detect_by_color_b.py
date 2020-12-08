@@ -29,7 +29,7 @@ def main():
     interval = 25
 
     FILTER = 2
-    cap = cv2.VideoCapture(r'./camvids/3.mp4')
+    cap = cv2.VideoCapture(r'./camvids/4.mp4')
 
     cap.set(cv2.CAP_PROP_FPS, 30)
 
@@ -67,7 +67,7 @@ def main():
             interval_change = 1
         interval = interval_change
 
-    cv2.namedWindow(FILTERED_WINDOW)
+    cv2.namedWindow(FILTERED_WINDOW, cv2.WINDOW_NORMAL)
     cv2.createTrackbar('H1', FILTERED_WINDOW, 0, 255, h_change)
     cv2.createTrackbar('H2', FILTERED_WINDOW, 0, 255, h2_change)
     cv2.createTrackbar('S_min', FILTERED_WINDOW, 0, 255, smin_change)

@@ -5,6 +5,7 @@ import numpy as np
 LINE_COLOR = (3, 216, 255)
 HSV_WINDOW = 'hsv'
 FILTERED_WINDOW = 'filtered'
+SETTING_WINDOW = 'setting'
 
 hsv = None
 
@@ -28,10 +29,10 @@ def main():
     s_min = 0
     v_max = 0
     v_min = 0
-    interval = 0
+    interval = 25
 
     FILTER = 2
-    cap = cv2.VideoCapture(r'./camvids/4.mp4')
+    cap = cv2.VideoCapture(r'./camvids/5.mp4')
 
     cap.set(cv2.CAP_PROP_FPS, 30)
 
@@ -78,15 +79,17 @@ def main():
         interval = interval_change
 
     cv2.namedWindow(FILTERED_WINDOW)
-    cv2.createTrackbar('H1_min', FILTERED_WINDOW, 0, 255, hmin_change)
-    cv2.createTrackbar('H1_max', FILTERED_WINDOW, 0, 255, hmax_change)
-    cv2.createTrackbar('H2_min', FILTERED_WINDOW, 0, 255, h2min_change)
-    cv2.createTrackbar('H2_max', FILTERED_WINDOW, 0, 255, h2max_change)
-    cv2.createTrackbar('S_min', FILTERED_WINDOW, 0, 255, smin_change)
-    cv2.createTrackbar('S_max', FILTERED_WINDOW, 0, 255, smax_change)
-    cv2.createTrackbar('V_min', FILTERED_WINDOW, 0, 255, vmin_change)
-    cv2.createTrackbar('V_max', FILTERED_WINDOW, 0, 255, vmax_change)
-    cv2.createTrackbar('interval', FILTERED_WINDOW, 25, 100, interval_change)
+
+    cv2.namedWindow(SETTING_WINDOW, cv2.WINDOW_NORMAL)
+    cv2.createTrackbar('H1_min', SETTING_WINDOW, 0, 255, hmin_change)
+    cv2.createTrackbar('H1_max', SETTING_WINDOW, 0, 255, hmax_change)
+    cv2.createTrackbar('H2_min', SETTING_WINDOW, 0, 255, h2min_change)
+    cv2.createTrackbar('H2_max', SETTING_WINDOW, 0, 255, h2max_change)
+    cv2.createTrackbar('S_min', SETTING_WINDOW, 0, 255, smin_change)
+    cv2.createTrackbar('S_max', SETTING_WINDOW, 0, 255, smax_change)
+    cv2.createTrackbar('V_min', SETTING_WINDOW, 0, 255, vmin_change)
+    cv2.createTrackbar('V_max', SETTING_WINDOW, 0, 255, vmax_change)
+    cv2.createTrackbar('interval', SETTING_WINDOW, 25, 100, interval_change)
 
     while True:
         success, img = cap.read()
@@ -142,7 +145,7 @@ def main():
         #
         cv2.imshow(FILTERED_WINDOW, limited)
 
-        if cv2.waitKey(interval) & 0xFF == ord('q'):
+        if cv2.waitKey(interval) == ord('q'):
             break
 
 

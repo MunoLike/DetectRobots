@@ -29,18 +29,18 @@ def recordClick(e, x, y, flags, _):
 
 
 def setup():
-    cv2.namedWindow(SQR_WINDOW)
+    cv2.namedWindow(SQR_WINDOW, cv2.WINDOW_NORMAL)
     cv2.setMouseCallback(SQR_WINDOW, recordClick)
 
 
-def event_loop(frame, WIDTH, HEIGHT):
+def event_loop(frame, HEIGHT, WIDTH):
     global click_cnt
     global h_mat
     global editable_frame
     global src_pt
     global dst_pt
 
-    frame = cv2.resize(frame, (WIDTH, HEIGHT))
+    frame = cv2.resize(frame, (HEIGHT, WIDTH))
     pil_img = ft.cv2pil(frame)
     pil_img = ft.add_margin(pil_img, MARGIN, MARGIN, MARGIN, MARGIN, (255, 255, 255))
     frame = ft.pil2cv(pil_img)
@@ -70,12 +70,6 @@ def event_loop(frame, WIDTH, HEIGHT):
     # 点がない時をはじく
     if (h_mat is None):
         return None
-    
+
     result = cv2.warpPerspective(frame, h_mat, (WIDTH, WIDTH))
     return result
-
-def event_loop2(frame, w, h):
-    global editable_frame
-    editable_frame = frame.copy()
-    cv2.imshow(SQR_WINDOW, editable_frame)
-    return 0
