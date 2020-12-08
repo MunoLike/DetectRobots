@@ -8,8 +8,8 @@ FILTERED_WINDOW = 'filtered'
 
 hsv = None
 
-# 青色のおすすめパラメータはh:127~178,s:41~255,v:91~255
 # profile_2: h:141~185, s:75~255, v:91~255
+#
 
 
 def mouseCallback(e, x, y, flags, img):
@@ -29,7 +29,7 @@ def main():
     interval = 25
 
     FILTER = 2
-    cap = cv2.VideoCapture(r'./camvids/4.mp4')
+    cap = cv2.VideoCapture(r'./camvids/2.mp4')
 
     cap.set(cv2.CAP_PROP_FPS, 30)
 

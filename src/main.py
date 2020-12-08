@@ -3,9 +3,10 @@ import numpy as np
 import frame_transformer as ft
 import perspective_transformer as pt
 import detector as dt
+import setting_window as sw
 
 # set value 0 for using camera
-cap = cv2.VideoCapture(r'./camvids/4.mp4')
+cap = cv2.VideoCapture(r'./camvids/1.mp4')
 
 # frame size
 (WIDTH, HEIGHT) = (640, 480)
@@ -16,9 +17,10 @@ RESULT_WINDOW = 'result'
 
 def main():
     pt.setup()
+    sw.setup()
 
     while True:
-        if cv2.waitKey(100) == ord('q'):
+        if cv2.waitKey(sw.interval) == ord('q'):
             break
 
         success, frame = cap.read()
@@ -29,8 +31,7 @@ def main():
         if p_frame is None:
             continue
 
-        r_frame = cv2.rotate(p_frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
-        filtered_frame = cv2.bilateralFilter(r_frame, 10, 100, 100)
+        filtered_frame = cv2.bilateralFilter(p_frame, 10, 100, 100)
 
         coords = dt.detect(filtered_frame, WIDTH)
 

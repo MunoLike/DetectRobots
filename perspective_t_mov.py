@@ -76,7 +76,7 @@ def main():
     result = None
 
     cap = cv2.VideoCapture(r'./camvids/2.mp4')
-
+    # cap = cv2.VideoCapture(0)
 
     cv2.namedWindow(IMG_WINDOW)
     cv2.namedWindow(RESULT_WINDOW, cv2.WINDOW_NORMAL)
@@ -96,7 +96,6 @@ def main():
 
         editable_img = img.copy()
 
-
         for i in range(click_cnt):
             cv2.circle(editable_img, tuple(src_pt[i]), 5, (0, 255, 0), -1)
 
@@ -104,8 +103,8 @@ def main():
         if click_cnt > 3:
             click_cnt = 0
 
-            (w_orig, w_end) = (0,WIDTH)
-            (h_orig, h_end) = (0,WIDTH)
+            (w_orig, w_end) = (0, WIDTH)
+            (h_orig, h_end) = (0, WIDTH)
 
             dst_pt[0] = [w_orig, h_orig]
             dst_pt[1] = [w_orig, h_end]

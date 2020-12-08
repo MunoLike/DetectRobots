@@ -32,7 +32,7 @@ def main():
     interval = 25
 
     FILTER = 2
-    cap = cv2.VideoCapture(r'./camvids/5.mp4')
+    cap = cv2.VideoCapture(r'./camvids/1.mp4')
 
     cap.set(cv2.CAP_PROP_FPS, 30)
 
