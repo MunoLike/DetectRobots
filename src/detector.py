@@ -7,7 +7,7 @@ import setting_window as sw
 
 # 光の乱れに弱い
 
-DEBUG_HSV = True
+DEBUG_HSV = False
 DEBUG_POS = False
 RED_WINDOW = 'red'
 BLUE_WINDOW = 'blue'
@@ -16,6 +16,7 @@ LINE_COLOR = (3, 216, 255)
 GRID_COLOR = (146, 182, 131)
 
 # initial pos
+# and for save prepos
 position_red = [0.0, 0.0]
 position_blue = [5.0, 5.0]
 
@@ -26,7 +27,7 @@ def debughsv(limited, circ, window_name):
         if not(circ is None):
             cv2.circle(bgr, (int(circ[0][0]), int(circ[0][1])), int(circ[1]), LINE_COLOR, 2)
             cv2.circle(bgr, (int(circ[0][0]), int(circ[0][1])), 3, LINE_COLOR, 3)
-            print(f'{window_name}: ', circ[1]**2*math.pi)
+            # print(f'{window_name}: ', circ[1]**2*math.pi)
         cv2.imshow(window_name, bgr)
 
 
@@ -35,16 +36,13 @@ def getLength(now, before):
 
 
 def getCircle(limited):
-    # Rinkaku
     contours, _ = cv2.findContours(limited, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    circles = []
     circ = None
-    for contour in contours:
-        approx = cv2.convexHull(contour)
-        circ = cv2.minEnclosingCircle(approx)
-        circles.append(np.array(circ))
 
-    circ = max(circles, key=lambda e: e[1] ** 2 * math.pi, default=None)
+    max_area = max(contours, key=lambda e: cv2.contourArea(e), default=None)
+    if max_area is None:
+        return None
+    circ = cv2.minEnclosingCircle(max_area)
     return circ
 
 
@@ -68,11 +66,6 @@ def detect_red(hsv_f):
     if (circ is None):
         return None
 
-    # 円の大きさチェック
-    s = circ[1] ** 2 * math.pi
-    if not(1000 < s and s < 2000):
-        return None
-
     return circ
 
 
@@ -88,11 +81,6 @@ def detect_blue(hsv_f):
     debughsv(limited, circ, BLUE_WINDOW)
 
     if (circ is None):
-        return None
-
-    # 円の大きさチェック
-    s = circ[1] ** 2 * math.pi
-    if not(1000 < s and s < 2000):
         return None
 
     return circ
@@ -139,10 +127,10 @@ def detect(frame, frameSize):
     normalized_redp = [center_red[0]/block_unitSize, center_red[1]/block_unitSize]
 
     # Error Handling 2
-    if 1.5 < getLength(normalized_bluep, position_blue):
-        normalized_bluep = position_blue
-    if 1.5 < getLength(normalized_redp, position_red):
-        normalized_redp = position_red
+    # if 1.5 < getLength(normalized_bluep, position_blue):
+    #     normalized_bluep = position_blue
+    # if 1.5 < getLength(normalized_redp, position_red):
+    #     normalized_redp = position_red
 
     position_blue = normalized_bluep  # preserve
     position_red = normalized_redp
@@ -154,11 +142,5 @@ def detect(frame, frameSize):
         for i in range(1, 6):
             frame = cv2.line(frame, (i*block_width, 0), (i*block_width, frameSize), GRID_COLOR, 3)
             frame = cv2.line(frame, (0, i*block_height), (frameSize, i*block_height), GRID_COLOR, 3)
-
-        ###
-        tmp_r = [int(f) for f in normalized_redp]
-        tmp_b = [int(f) for f in normalized_bluep]
-        print(tmp_r, tmp_b)
-        ###
 
     return (normalized_redp, normalized_bluep)

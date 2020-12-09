@@ -6,7 +6,12 @@ import frame_transformer as ft
 SQR_WINDOW = 'square editor'
 
 # before/after transforming points
-src_pt = np.zeros((4, 2), dtype=np.float32)
+src_pt = np.array([
+    [227, 118],
+    [224, 719],
+    [568, 720],
+    [563, 116]
+], dtype=np.float32)
 dst_pt = np.zeros((4, 2), dtype=np.float32)
 
 # check how times the window is clicked
@@ -29,7 +34,7 @@ def recordClick(e, x, y, flags, _):
 
 
 def setup():
-    cv2.namedWindow(SQR_WINDOW, cv2.WINDOW_NORMAL)
+    cv2.namedWindow(SQR_WINDOW, cv2.WINDOW_KEEPRATIO)
     cv2.setMouseCallback(SQR_WINDOW, recordClick)
 
 
@@ -53,16 +58,16 @@ def event_loop(frame, HEIGHT, WIDTH):
     if click_cnt > 3:
         click_cnt = 0
 
-        (w_orig, w_end) = (0, WIDTH)
-        (h_orig, h_end) = (0, WIDTH)
+    (w_orig, w_end) = (0, WIDTH)
+    (h_orig, h_end) = (0, WIDTH)
 
-        dst_pt[0] = [w_orig, h_orig]
-        dst_pt[1] = [w_orig, h_end]
-        dst_pt[2] = [w_end, h_end]
-        dst_pt[3] = [w_end, h_orig]
+    dst_pt[0] = [w_orig, h_orig]
+    dst_pt[1] = [w_orig, h_end]
+    dst_pt[2] = [w_end, h_end]
+    dst_pt[3] = [w_end, h_orig]
 
-        h_mat = cv2.getPerspectiveTransform(src_pt, dst_pt)
-        editable_frame = frame.copy()  # reset Image
+    h_mat = cv2.getPerspectiveTransform(src_pt, dst_pt)
+    editable_frame = frame.copy()  # reset Image
 
     #
     cv2.imshow(SQR_WINDOW, editable_frame)

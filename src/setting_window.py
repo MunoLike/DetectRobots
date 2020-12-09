@@ -4,24 +4,25 @@ SETTING_WINDOW_RED = 'red hsv setting'
 SETTING_WINDOW_BLUE = 'blue hsv setting'
 SETTING_WINDOW = 'General'
 
+# default value
 redh1_min = 0
-redh1_max = 0
-redh2_min = 0
-redh2_max = 0
-reds_min = 0
-reds_max = 0
-redv_min = 0
-redv_max = 0
+redh1_max = 8
+redh2_min = 242
+redh2_max = 255
+reds_min = 42
+reds_max = 153
+redv_min = 129
+redv_max = 221
 
-blueh_min = 0
-blueh_max = 0
-blues_min = 0
-blues_max = 0
-bluev_min = 0
-bluev_max = 0
+blueh_min = 105
+blueh_max = 203
+blues_min = 50
+blues_max = 162
+bluev_min = 89
+bluev_max = 230
 
 
-interval = 100
+interval = 1
 
 
 def interval_change(interval_change):
@@ -68,7 +69,7 @@ def setup():
         global redv_max
         redv_max = v
 
-    cv2.namedWindow(SETTING_WINDOW_RED, cv2.WINDOW_NORMAL)
+    cv2.namedWindow(SETTING_WINDOW_RED)
     cv2.createTrackbar('H1_min', SETTING_WINDOW_RED, 0, 255, change_redh1_min)
     cv2.createTrackbar('H1_max', SETTING_WINDOW_RED, 0, 255, change_redh1_max)
     cv2.createTrackbar('H2_min', SETTING_WINDOW_RED, 0, 255, change_redh2_min)
@@ -103,7 +104,7 @@ def setup():
         global bluev_max
         bluev_max = v
 
-    cv2.namedWindow(SETTING_WINDOW_BLUE, cv2.WINDOW_NORMAL)
+    cv2.namedWindow(SETTING_WINDOW_BLUE)
     cv2.createTrackbar('H1', SETTING_WINDOW_BLUE, 0, 255, change_blueh_min)
     cv2.createTrackbar('H2', SETTING_WINDOW_BLUE, 0, 255, change_blueh_max)
     cv2.createTrackbar('S_min', SETTING_WINDOW_BLUE, 0, 255, change_blues_min)
