@@ -1,16 +1,18 @@
 import cv2
 import numpy as np
+import logging
 import frame_transformer as ft
+import main
 
 # Window names
 SQR_WINDOW = 'square editor'
 
 # before/after transforming points
 src_pt = np.array([
-    [227, 118],
-    [224, 719],
-    [568, 720],
-    [563, 116]
+    [174, 143],
+    [164, 697],
+    [502, 725],
+    [488, 105]
 ], dtype=np.float32)
 dst_pt = np.zeros((4, 2), dtype=np.float32)
 
@@ -24,11 +26,16 @@ MARGIN = 100
 h_mat = None
 editable_frame = None
 
+# logger
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 def recordClick(e, x, y, flags, _):
     global src_pt
     global click_cnt
     if e == cv2.EVENT_LBUTTONDBLCLK:
+        logger.info(f'{x}, {y}')
         src_pt[click_cnt] = [x, y]
         click_cnt += 1
 
@@ -57,6 +64,7 @@ def event_loop(frame, HEIGHT, WIDTH):
     #
     if click_cnt > 3:
         click_cnt = 0
+        editable_frame = frame.copy()  # reset Image
 
     (w_orig, w_end) = (0, WIDTH)
     (h_orig, h_end) = (0, WIDTH)
@@ -67,10 +75,10 @@ def event_loop(frame, HEIGHT, WIDTH):
     dst_pt[3] = [w_end, h_orig]
 
     h_mat = cv2.getPerspectiveTransform(src_pt, dst_pt)
-    editable_frame = frame.copy()  # reset Image
 
     #
-    cv2.imshow(SQR_WINDOW, editable_frame)
+    if main.ADJUST_WINDOW:
+        cv2.imshow(SQR_WINDOW, editable_frame)
 
     # 点がない時をはじく
     if (h_mat is None):

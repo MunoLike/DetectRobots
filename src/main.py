@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import logging
 import frame_transformer as ft
 import perspective_transformer as pt
 import detector as dt
@@ -10,8 +11,8 @@ import server
 import threading
 
 # set value 0 for using camera
-cap = cv2.VideoCapture(0)
-# cap = cv2.VideoCapture(r'./camvids/2.mp4')
+# cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(r'./camvids/3.mp4')
 
 # frame size
 (WIDTH, HEIGHT) = (640, 480)
@@ -20,11 +21,13 @@ cap = cv2.VideoCapture(0)
 VIEW_WINDOW = 'view'
 
 #
-ADJUST_WINDOW = False
-DEBUG_PRINTCOORD = True
+ADJUST_WINDOW = True
+DEBUG_PRINTCOORD = False
 
 # redp, bluep
 coords = [[0.0, 0.0], [0.0, 0.0]]
+def get_coords():
+    return coords
 
 
 def main():
@@ -32,9 +35,9 @@ def main():
     lock = threading.RLock()
 
     # start server
-    server = threading.Thread(target=server.server, args=(lock,))
-    server.setDaemon(True)
-    server.start()
+    server_thread = threading.Thread(target=server.server, args=(lock,))
+    server_thread.setDaemon(True)
+    server_thread.start()
 
     if ADJUST_WINDOW:
         pt.setup()
@@ -65,7 +68,7 @@ def main():
 
         # lock
         lock.acquire()
-        coords = tmp
+        coords[:] = tmp
         lock.release()
 
         if DEBUG_PRINTCOORD:
