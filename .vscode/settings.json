@@ -1,5 +1,5 @@
 {
-  "python.pythonPath": "C:\\Users\\User\\AppData\\Local\\Programs\\Python\\Python38\\python.exe",
+  "python.pythonPath": "C:\\Users\\manex\\AppData\\Local\\Programs\\Python\\Python38\\python.exe",
 
   "python.formatting.autopep8Args": ["--max-line-length=150"]
 }
