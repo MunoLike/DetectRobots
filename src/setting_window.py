@@ -12,7 +12,7 @@ redh2_max = 255
 reds_min = 42
 reds_max = 153
 redv_min = 129
-redv_max = 221
+redv_max = 236
 
 blueh_min = 105
 blueh_max = 203

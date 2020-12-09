@@ -7,8 +7,7 @@ import setting_window as sw
 
 # 光の乱れに弱い
 
-DEBUG_HSV = False
-DEBUG_POS = False
+DEBUG_HSV = True
 RED_WINDOW = 'red'
 BLUE_WINDOW = 'blue'
 
@@ -134,13 +133,5 @@ def detect(frame, frameSize):
 
     position_blue = normalized_bluep  # preserve
     position_red = normalized_redp
-
-    if DEBUG_POS:
-        block_height = int(frameSize/6)
-        block_width = int(frameSize/6)
-
-        for i in range(1, 6):
-            frame = cv2.line(frame, (i*block_width, 0), (i*block_width, frameSize), GRID_COLOR, 3)
-            frame = cv2.line(frame, (0, i*block_height), (frameSize, i*block_height), GRID_COLOR, 3)
 
     return (normalized_redp, normalized_bluep)

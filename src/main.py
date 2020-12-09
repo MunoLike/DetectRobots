@@ -7,7 +7,8 @@ import setting_window as sw
 import color_picker as cp
 
 # set value 0 for using camera
-cap = cv2.VideoCapture(r'./camvids/2.mp4')
+cap = cv2.VideoCapture(0)
+# cap = cv2.VideoCapture(r'./camvids/2.mp4')
 
 # frame size
 (WIDTH, HEIGHT) = (640, 480)
@@ -17,6 +18,7 @@ VIEW_WINDOW = 'view'
 
 #
 ADJUST_COLOR_WINDOW = False
+DEBUG_PRINTCOORD = True
 
 
 def main():
@@ -48,7 +50,9 @@ def main():
         # redp, bluep
         coords = dt.detect(frame, WIDTH)
 
-        print('redp:', list(map(int, coords[0])), 'bluep:', list(map(int, coords[1])))
+        if DEBUG_PRINTCOORD:
+            def f(e): return '{:.3g}'.format(e)
+            print('redp:', list(map(f, coords[0])), 'bluep:', list(map(f, coords[1])))
 
         cv2.imshow(VIEW_WINDOW, frame)
 
