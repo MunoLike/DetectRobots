@@ -1,6 +1,6 @@
 import socket
 import logging
-import main
+import variables
 
 # logger
 logging.basicConfig(level=logging.INFO)
@@ -8,6 +8,8 @@ logger = logging.getLogger(__name__)
 
 
 def server(lock):
+    def f(e): return '{:.3g}'.format(e)
+
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind(('127.0.0.1', 50007))
         s.listen(1)
@@ -25,10 +27,12 @@ def server(lock):
 
                     coords = None
                     lock.acquire()
-                    coords = main.get_coords()
+                    coords = variables.coords
                     lock.release()
 
-                    sendstr = f'{coords[0][0]},{coords[0][1]},{coords[1][0]},{coords[1][1]}'
+                    redp = list(map(f, variables.coords[0]))
+                    bluep = list(map(f, variables.coords[1]))
+                    sendstr = f'{redp[0]},{redp[1]},{bluep[0]},{bluep[1]}'
 
                     con.sendall(sendstr.encode())
 

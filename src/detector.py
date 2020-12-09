@@ -7,7 +7,7 @@ import setting_window as sw
 
 # 光の乱れに弱い
 
-DEBUG_HSV = True
+DEBUG_HSV = False
 RED_WINDOW = 'red'
 BLUE_WINDOW = 'blue'
 

@@ -7,6 +7,7 @@ import detector as dt
 import setting_window as sw
 import color_picker as cp
 import server
+import variables
 
 import threading
 
@@ -15,7 +16,7 @@ import threading
 cap = cv2.VideoCapture(r'./camvids/3.mp4')
 
 # frame size
-(WIDTH, HEIGHT) = (640, 480)
+(WIDTH, HEIGHT) = (320, 240)
 
 #
 VIEW_WINDOW = 'view'
@@ -24,14 +25,8 @@ VIEW_WINDOW = 'view'
 ADJUST_WINDOW = True
 DEBUG_PRINTCOORD = False
 
-# redp, bluep
-coords = [[0.0, 0.0], [0.0, 0.0]]
-def get_coords():
-    return coords
-
 
 def main():
-    global coords
     lock = threading.RLock()
 
     # start server
@@ -58,7 +53,8 @@ def main():
             continue
 
         frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
-        frame = cv2.bilateralFilter(frame, 10, 100, 100)
+        frame = cv2.medianBlur(frame, 7)
+        # frame = cv2.GaussianBlur(frame, (7, 7), 0)
 
         if ADJUST_WINDOW:
             cp.event_loop(frame)
@@ -68,12 +64,12 @@ def main():
 
         # lock
         lock.acquire()
-        coords[:] = tmp
+        variables.coords = tmp
         lock.release()
 
         if DEBUG_PRINTCOORD:
             def f(e): return '{:.3g}'.format(e)
-            print('redp:', list(map(f, coords[0])), 'bluep:', list(map(f, coords[1])))
+            print('redp:', list(map(f, variables.coords[0])), 'bluep:', list(map(f, variables.coords[1])))
 
         cv2.imshow(VIEW_WINDOW, frame)
 
