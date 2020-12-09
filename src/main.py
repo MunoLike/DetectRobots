@@ -5,6 +5,9 @@ import perspective_transformer as pt
 import detector as dt
 import setting_window as sw
 import color_picker as cp
+import server
+
+import threading
 
 # set value 0 for using camera
 cap = cv2.VideoCapture(0)
@@ -17,14 +20,24 @@ cap = cv2.VideoCapture(0)
 VIEW_WINDOW = 'view'
 
 #
-ADJUST_COLOR_WINDOW = False
+ADJUST_WINDOW = False
 DEBUG_PRINTCOORD = True
+
+# redp, bluep
+coords = [[0.0, 0.0], [0.0, 0.0]]
 
 
 def main():
-    pt.setup()
+    global coords
+    lock = threading.RLock()
 
-    if ADJUST_COLOR_WINDOW:
+    # start server
+    server = threading.Thread(target=server.server, args=(lock,))
+    server.setDaemon(True)
+    server.start()
+
+    if ADJUST_WINDOW:
+        pt.setup()
         cp.setup()
         sw.setup()
 
@@ -44,11 +57,16 @@ def main():
         frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
         frame = cv2.bilateralFilter(frame, 10, 100, 100)
 
-        if ADJUST_COLOR_WINDOW:
+        if ADJUST_WINDOW:
             cp.event_loop(frame)
 
         # redp, bluep
-        coords = dt.detect(frame, WIDTH)
+        tmp = dt.detect(frame, WIDTH)
+
+        # lock
+        lock.acquire()
+        coords = tmp
+        lock.release()
 
         if DEBUG_PRINTCOORD:
             def f(e): return '{:.3g}'.format(e)

@@ -134,4 +134,4 @@ def detect(frame, frameSize):
     position_blue = normalized_bluep  # preserve
     position_red = normalized_redp
 
-    return (normalized_redp, normalized_bluep)
+    return [normalized_redp, normalized_bluep]

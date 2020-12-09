@@ -1,8 +1,12 @@
 import threading
 import socket
 
+race_val = 0
 
-def server():
+
+def server(lock):
+    global race_val
+
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind(('127.0.0.1', 50007))
         s.listen(1)
@@ -12,6 +16,7 @@ def server():
             with con:
                 while True:
                     data = con.recv(1024)
+
                     if not data:
                         break
 
@@ -19,7 +24,7 @@ def server():
                     con.sendall(f'Received: {data}'.encode())
 
 
-def client():
+def client(lock):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect(('127.0.0.1', 50007))
         s.sendall(b'client')
@@ -28,20 +33,22 @@ def client():
 
 
 def main():
-    t1 = threading.Thread(target=server)
+    lock = threading.RLock()
+
+    t1 = threading.Thread(target=server, args=(lock,))
     t1.setDaemon(True)
     t1.start()
-
-    t2 = threading.Thread(target=client)
-    t2.setDaemon(True)
-    t2.start()
 
     while True:
         s = input()
         if s == 'r':
-            t2 = threading.Thread(target=client)
+            t2 = threading.Thread(target=client, args=(lock,))
             t2.setDaemon(True)
             t2.start()
+        elif s == 's':
+            lock.acquire()
+            print(race_val)
+            lock.release()
         elif s == 'q':
             break
 
