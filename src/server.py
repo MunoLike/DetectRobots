@@ -8,10 +8,10 @@ logger = logging.getLogger(__name__)
 
 
 def server(lock):
-    def f(e): return '{:.3g}'.format(e)
+    def f(e): return int(e*10**3)/10**3
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind(('127.0.0.1', 50007))
+        s.bind(('192.168.11.59', 50007))
         s.listen(1)
 
         while True:

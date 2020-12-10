@@ -9,10 +9,10 @@ SQR_WINDOW = 'square editor'
 
 # before/after transforming points
 src_pt = np.array([
-    [174, 143],
-    [164, 697],
-    [502, 725],
-    [488, 105]
+    [142, 135],
+    [99, 386],
+    [338, 386],
+    [300, 123]
 ], dtype=np.float32)
 dst_pt = np.zeros((4, 2), dtype=np.float32)
 

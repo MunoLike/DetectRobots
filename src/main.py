@@ -12,8 +12,8 @@ import variables
 import threading
 
 # set value 0 for using camera
-# cap = cv2.VideoCapture(0)
-cap = cv2.VideoCapture(r'./camvids/3.mp4')
+# cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(r'./camvids/2.mp4')
 
 # frame size
 (WIDTH, HEIGHT) = (320, 240)
@@ -52,9 +52,8 @@ def main():
         if frame is None:
             continue
 
-        frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+        # frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
         frame = cv2.medianBlur(frame, 7)
-        # frame = cv2.GaussianBlur(frame, (7, 7), 0)
 
         if ADJUST_WINDOW:
             cp.event_loop(frame)
